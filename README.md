@@ -23,4 +23,4 @@ Validates that a signed request was passed using the correct algorithm, by Faceb
 
 The above will throw an exception if the algorithm that the signed request
 was signed using is not valid, or if the signed request is not encoded to
-match your applications secret key.
+match your application's secret key.
