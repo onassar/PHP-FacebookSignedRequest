@@ -90,7 +90,7 @@
          * @access protected
          * @return void
          */
-        public function _parse()
+        protected function _parse()
         {
             // Decode the payload
             list($encodedSignature, $payload) = explode(
