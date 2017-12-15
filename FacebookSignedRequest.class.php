@@ -10,6 +10,7 @@
      * @see     http://stackoverflow.com/questions/4859820/facebook-user-deauthorizes-the-app
      * @see     https://developers.facebook.com/docs/facebook-login/using-login-with-games/
      * @see     https://developers.facebook.com/docs/reference/login/signed-request/
+     * @link    https://github.com/onassar/PHP-FacebookSignedRequest
      * @author  Oliver Nassar <onassar@gmail.com>
      */
     class FacebookSignedRequest
