@@ -11,10 +11,10 @@ Validates that a signed request was passed using the correct algorithm, by Faceb
     // Example of deauthorize callback
     $signedRequest = $_POST['signed_request'];
     $facebookAppSecret = 'olivernassar';
-    $signedRequest = (new FacebookSignedRequest(
+    $signedRequest = new FacebookSignedRequest(
         $signedRequest,
         $facebookAppSecret
-    ));
+    );
     $data = $signedRequest->getData();
     echo 'Deauthorizing Facebook user ID:' . ($data['user_id']);
     exit(0);
