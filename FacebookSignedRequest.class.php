@@ -54,6 +54,7 @@
         /**
          * _confirmSignature
          * 
+         * @throws  Exception
          * @access  protected
          * @param   string $signature
          * @param   string $payload
@@ -75,6 +76,7 @@
         /**
          * _confirmValidAlgorithm
          * 
+         * @throws  Exception
          * @access  protected
          * @return  string
          */
