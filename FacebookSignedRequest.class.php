@@ -40,13 +40,13 @@
         protected $_signedRequest;
 
         /**
-         * _base64UrlDecode
+         * _base64URLDecode
          * 
          * @access  protected
          * @param   string $str
          * @return  string
          */
-        protected function _base64UrlDecode($str)
+        protected function _base64URLDecode($str)
         {
             return base64_decode(strtr($str, '-_', '+/'));
         }
@@ -101,8 +101,8 @@
                 $this->_signedRequest,
                 2
             );
-            $signature = $this->_base64UrlDecode($encodedSignature);
-            $this->_data = json_decode($this->_base64UrlDecode($payload), true);
+            $signature = $this->_base64URLDecode($encodedSignature);
+            $this->_data = json_decode($this->_base64URLDecode($payload), true);
 
             // Ensure proper encoding algorithm and signature
             $this->_confirmValidAlgorithm();
