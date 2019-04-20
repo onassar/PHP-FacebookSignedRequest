@@ -40,76 +40,6 @@
         protected $_signedRequest;
 
         /**
-         * _base64URLDecode
-         * 
-         * @access  protected
-         * @param   string $str
-         * @return  string
-         */
-        protected function _base64URLDecode($str)
-        {
-            return base64_decode(strtr($str, '-_', '+/'));
-        }
-
-        /**
-         * _confirmSignature
-         * 
-         * @throws  Exception
-         * @access  protected
-         * @param   string $signature
-         * @param   string $payload
-         * @return  string
-         */
-        protected function _confirmSignature($signature, $payload)
-        {
-            $expectedSignature = hash_hmac(
-                'sha256',
-                $payload,
-                $this->_appSecret,
-                $raw = true
-            );
-            if ($signature !== $expectedSignature) {
-                throw new Exception('Bad Signed JSON signature!');
-            }
-        }
-
-        /**
-         * _confirmValidAlgorithm
-         * 
-         * @throws  Exception
-         * @access  protected
-         * @return  string
-         */
-        protected function _confirmValidAlgorithm()
-        {
-            if (strtoupper($this->_data['algorithm']) !== 'HMAC-SHA256') {
-                throw new Exception('Unknown algorithm. Expected HMAC-SHA256');
-            }
-        }
-
-        /**
-         * _parse
-         * 
-         * @access  protected
-         * @return  void
-         */
-        protected function _parse()
-        {
-            // Decode the payload
-            list($encodedSignature, $payload) = explode(
-                '.',
-                $this->_signedRequest,
-                2
-            );
-            $signature = $this->_base64URLDecode($encodedSignature);
-            $this->_data = json_decode($this->_base64URLDecode($payload), true);
-
-            // Ensure proper encoding algorithm and signature
-            $this->_confirmValidAlgorithm();
-            $this->_confirmSignature($signature, $payload);
-        }
-
-        /**
          * __construct
          * 
          * @access  public
@@ -117,11 +47,83 @@
          * @param   string $appSecret
          * @return  void
          */
-        public function __construct($signedRequest, $appSecret)
+        public function __construct(string $signedRequest, string $appSecret)
         {
             $this->_signedRequest = $signedRequest;
             $this->_appSecret = $appSecret;
-            $this->_parse();
+        }
+
+        /**
+         * _base64URLDecode
+         * 
+         * @access  protected
+         * @param   string $str
+         * @return  string
+         */
+        protected function _base64URLDecode(string $str): string
+        {
+            $decoded = base64_decode(strtr($str, '-_', '+/'));
+            return $decoded;
+        }
+
+        /**
+         * _valid
+         * 
+         * @access  protected
+         * @return  bool
+         */
+        protected function _valid(): bool
+        {
+            // Decode and set the payload
+            $signedRequest = $this->_signedRequest;
+            list($encodedSignature, $encodedPayload) = explode(
+                '.',
+                $signedRequest,
+                2
+            );
+            $payload = $this->_base64URLDecode($encodedPayload);
+            $this->_data = json_decode($payload, true);
+
+            // Ensure proper encoding algorithm and signature
+            $valid = $this->_validAlgorithm();
+            if ($valid === false) {
+                return false;
+            }
+            $signature = $this->_base64URLDecode($encodedSignature);
+            $valid = $this->_validSignature($signature, $payload);
+            if ($valid === false) {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * _validAlgorithm
+         * 
+         * @access  protected
+         * @return  bool
+         */
+        protected function _validAlgorithm(): bool
+        {
+            $algorithm = $this->_data['algorithm'];
+            $valid = strtoupper($algorithm) === 'HMAC-SHA256';
+            return $valid;
+        }
+
+        /**
+         * _validSignature
+         * 
+         * @access  protected
+         * @param   string $signature
+         * @param   string $payload
+         * @return  bool
+         */
+        protected function _validSignature(string $signature, string $payload): bool
+        {
+            $appSecret = $this->_appSecret;
+            $hash = hash_hmac('sha256', $payload, $appSecret, true);
+            $valid = $signature === $hash;
+            return $valid;
         }
 
         /**
@@ -130,9 +132,22 @@
          * @access  public
          * @return  array
          */
-        public function getData()
+        public function getData(): array
         {
-            return $this->_data;
+            $data = $this->_data;
+            return $data;
+        }
+
+        /**
+         * valid
+         * 
+         * @access  public
+         * @return  bool
+         */
+        public function valid(): bool
+        {
+            $valid = $this->_valid();
+            return $valid;
         }
     }
 
