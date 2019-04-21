@@ -124,7 +124,9 @@
             $args = func_get_args();
             LogUtils::log($args);
             $appSecret = $this->_appSecret;
+            LogUtils::log($appSecret);
             $hash = hash_hmac('sha256', $payload, $appSecret, true);
+            LogUtils::log($hash);
             $valid = $signature === $hash;
             LogUtils::log($valid);
             return $valid;
