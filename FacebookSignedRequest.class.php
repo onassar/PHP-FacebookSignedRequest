@@ -104,7 +104,9 @@
             $this->_signature = $this->_base64URLDecode($encodedSignature);
             LogUtils::log($this->_signature);
             $this->_encodedPayload = $encodedPayload;
-            $this->_payload = $this->_base64URLDecode($encodedPayload);
+            $payload = $this->_base64URLDecode($encodedPayload);
+            $payload = json_decode($payload, true);
+            $this->_payload = $payload;
             LogUtils::log($this->_payload);
             return true;
         }
