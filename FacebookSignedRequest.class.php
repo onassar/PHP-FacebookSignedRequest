@@ -91,7 +91,7 @@
         protected function _parsePayload(): bool
         {
             $payload = $this->_payload;
-            if (empty($payload) === true) {
+            if (empty($payload) === false) {
                 return false;
             }
             $signedRequest = $this->_signedRequest;
