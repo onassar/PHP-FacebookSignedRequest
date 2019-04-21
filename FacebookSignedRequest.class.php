@@ -24,12 +24,28 @@
         protected $_appSecret;
 
         /**
-         * _data
+         * _encodedSignature
+         * 
+         * @var     string
+         * @access  protected
+         */
+        protected $_encodedSignature;
+
+        /**
+         * _payload
          * 
          * @var     array (default: array())
          * @access  protected
          */
-        protected $_data = array();
+        protected $_payload = array();
+
+        /**
+         * _signature
+         * 
+         * @var     string
+         * @access  protected
+         */
+        protected $_signature;
 
         /**
          * _signedRequest
@@ -43,14 +59,14 @@
          * __construct
          * 
          * @access  public
-         * @param   string $signedRequest
          * @param   string $appSecret
+         * @param   string $signedRequest
          * @return  void
          */
-        public function __construct(string $signedRequest, string $appSecret)
+        public function __construct(string $appSecret, string $signedRequest)
         {
-            $this->_signedRequest = $signedRequest;
             $this->_appSecret = $appSecret;
+            $this->_signedRequest = $signedRequest;
         }
 
         /**
@@ -67,6 +83,30 @@
         }
 
         /**
+         * _parsePayload
+         * 
+         * @access  protected
+         * @return  bool
+         */
+        protected function _parsePayload(): bool
+        {
+            $payload = $this->_payload;
+            if (empty($payload) === true) {
+                return false;
+            }
+            $signedRequest = $this->_signedRequest;
+            list($encodedSignature, $encodedPayload) = explode(
+                '.',
+                $signedRequest,
+                2
+            );
+            $this->_signature = $this->_base64URLDecode($encodedSignature);
+            $this->_encodedPayload = $encodedPayload;
+            $this->_payload = $this->_base64URLDecode($encodedPayload);
+            return true;
+        }
+
+        /**
          * _valid
          * 
          * @access  protected
@@ -74,26 +114,12 @@
          */
         protected function _valid(): bool
         {
-            // Decode and set the payload
-            $signedRequest = $this->_signedRequest;
-            list($encodedSignature, $encodedPayload) = explode(
-                '.',
-                $signedRequest,
-                2
-            );
-            $payload = $this->_base64URLDecode($encodedPayload);
-            $this->_data = json_decode($payload, true);
-            LogUtils::log($payload, $this->_data);
-
-            // Ensure proper encoding algorithm and signature
+            $this->_parsePayload();
             $valid = $this->_validAlgorithm();
             if ($valid === false) {
                 return false;
             }
-LogUtils::log($encodedSignature);
-            $signature = $this->_base64URLDecode($encodedSignature);
-LogUtils::log($signature);
-            $valid = $this->_validSignature($signature, $encodedPayload);
+            $valid = $this->_validSignature();
             if ($valid === false) {
                 return false;
             }
@@ -108,7 +134,8 @@ LogUtils::log($signature);
          */
         protected function _validAlgorithm(): bool
         {
-            $algorithm = $this->_data['algorithm'];
+            $payload = $this->_payload;
+            $algorithm = $payload['algorithm'];
             $valid = strtoupper($algorithm) === 'HMAC-SHA256';
             return $valid;
         }
@@ -117,33 +144,29 @@ LogUtils::log($signature);
          * _validSignature
          * 
          * @access  protected
-         * @param   string $signature
-         * @param   string $payload
          * @return  bool
          */
-        protected function _validSignature(string $signature, string $payload): bool
+        protected function _validSignature(): bool
         {
-            $args = func_get_args();
-            LogUtils::log($args);
+            $encodedPayload = $this->_encodedPayload;
             $appSecret = $this->_appSecret;
-            LogUtils::log($appSecret);
-            $hash = hash_hmac('sha256', $payload, $appSecret, true);
-            LogUtils::log($hash);
+            $hash = hash_hmac('sha256', $encodedPayload, $appSecret, true);
+            $signature = $this->_signature;
             $valid = $signature === $hash;
-            LogUtils::log($valid);
             return $valid;
         }
 
         /**
-         * getData
+         * getPayload
          * 
          * @access  public
          * @return  array
          */
-        public function getData(): array
+        public function getPayload(): array
         {
-            $data = $this->_data;
-            return $data;
+            $this->_parsePayload();
+            $payload = $this->_payload;
+            return $payload;
         }
 
         /**
