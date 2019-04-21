@@ -107,6 +107,7 @@
         {
             $algorithm = $this->_data['algorithm'];
             $valid = strtoupper($algorithm) === 'HMAC-SHA256';
+            LogUtils::log($valid);
             return $valid;
         }
 
@@ -123,6 +124,7 @@
             $appSecret = $this->_appSecret;
             $hash = hash_hmac('sha256', $payload, $appSecret, true);
             $valid = $signature === $hash;
+            LogUtils::log($valid);
             return $valid;
         }
 
