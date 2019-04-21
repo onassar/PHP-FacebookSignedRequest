@@ -49,6 +49,8 @@
          */
         public function __construct(string $signedRequest, string $appSecret)
         {
+$args = func_get_args();
+LogUtils::log($args);
             $this->_signedRequest = $signedRequest;
             $this->_appSecret = $appSecret;
         }
@@ -89,6 +91,7 @@
             if ($valid === false) {
                 return false;
             }
+LogUtils::log($encodedSignature);
             $signature = $this->_base64URLDecode($encodedSignature);
             $valid = $this->_validSignature($signature, $payload);
             if ($valid === false) {
