@@ -100,9 +100,12 @@
                 $signedRequest,
                 2
             );
+            LogUtils::log($encodedSignature, $encodedPayload);
             $this->_signature = $this->_base64URLDecode($encodedSignature);
+            LogUtils::log($this->_signature);
             $this->_encodedPayload = $encodedPayload;
             $this->_payload = $this->_base64URLDecode($encodedPayload);
+            LogUtils::log($this->_payload);
             return true;
         }
 
