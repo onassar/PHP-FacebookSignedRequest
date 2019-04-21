@@ -32,20 +32,20 @@
         protected $_encodedSignature;
 
         /**
+         * _parsed
+         * 
+         * @var     bool (default: false)
+         * @access  protected
+         */
+        protected $_parsed = false;
+
+        /**
          * _payload
          * 
          * @var     array (default: array())
          * @access  protected
          */
         protected $_payload = array();
-
-        /**
-         * _signature
-         * 
-         * @var     string
-         * @access  protected
-         */
-        protected $_signature;
 
         /**
          * _signedRequest
@@ -78,29 +78,44 @@
          */
         protected function _base64URLDecode(string $str): string
         {
-            $decoded = base64_decode(strtr($str, '-_', '+/'));
+            $str = strtr($str, '-_', '+/');
+            $decoded = base64_decode($str);
             return $decoded;
         }
 
         /**
-         * _parsePayload
+         * _getDecodedSignature
+         * 
+         * @access  protected
+         * @return  string
+         */
+        protected function _getDecodedSignature(): string
+        {
+            $encodedSignature = $this->_encodedSignature;
+            $decodedSignature = $this->_base64URLDecode($encodedSignature);
+            return $decodedSignature;
+        }
+
+        /**
+         * _parseSignedRequest
          * 
          * @access  protected
          * @return  bool
          */
-        protected function _parsePayload(): bool
+        protected function _parseSignedRequest(): bool
         {
-            $payload = $this->_payload;
-            if (empty($payload) === false) {
+            $parsed = $this->_parsed;
+            if ($parsed === true) {
                 return false;
             }
+            $this->_parsed = true;
             $signedRequest = $this->_signedRequest;
             list($encodedSignature, $encodedPayload) = explode(
                 '.',
                 $signedRequest,
                 2
             );
-            $this->_signature = $this->_base64URLDecode($encodedSignature);
+            $this->_encodedSignature = $encodedSignature;
             $this->_encodedPayload = $encodedPayload;
             $payload = $this->_base64URLDecode($encodedPayload);
             $payload = json_decode($payload, true);
@@ -116,7 +131,7 @@
          */
         protected function _valid(): bool
         {
-            $this->_parsePayload();
+            $this->_parseSignedRequest();
             $valid = $this->_validAlgorithm();
             if ($valid === false) {
                 return false;
@@ -153,8 +168,8 @@
             $encodedPayload = $this->_encodedPayload;
             $appSecret = $this->_appSecret;
             $hash = hash_hmac('sha256', $encodedPayload, $appSecret, true);
-            $signature = $this->_signature;
-            $valid = $signature === $hash;
+            $decodedSignature = $this->_getDecodedSignature();
+            $valid = $decodedSignature === $hash;
             return $valid;
         }
 
@@ -166,7 +181,7 @@
          */
         public function getPayload(): array
         {
-            $this->_parsePayload();
+            $this->_parseSignedRequest();
             $payload = $this->_payload;
             return $payload;
         }
