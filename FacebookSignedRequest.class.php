@@ -94,6 +94,7 @@ LogUtils::log($args);
             }
 LogUtils::log($encodedSignature);
             $signature = $this->_base64URLDecode($encodedSignature);
+LogUtils::log($signature);
             $valid = $this->_validSignature($signature, $payload);
             if ($valid === false) {
                 return false;
@@ -111,7 +112,6 @@ LogUtils::log($encodedSignature);
         {
             $algorithm = $this->_data['algorithm'];
             $valid = strtoupper($algorithm) === 'HMAC-SHA256';
-            LogUtils::log($valid);
             return $valid;
         }
 
