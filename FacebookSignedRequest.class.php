@@ -85,6 +85,7 @@ LogUtils::log($args);
             );
             $payload = $this->_base64URLDecode($encodedPayload);
             $this->_data = json_decode($payload, true);
+            LogUtils::log($payload, $this->_data);
 
             // Ensure proper encoding algorithm and signature
             $valid = $this->_validAlgorithm();
