@@ -121,6 +121,8 @@
          */
         protected function _validSignature(string $signature, string $payload): bool
         {
+            $args = func_get_args();
+            LogUtils::log($args);
             $appSecret = $this->_appSecret;
             $hash = hash_hmac('sha256', $payload, $appSecret, true);
             $valid = $signature === $hash;
