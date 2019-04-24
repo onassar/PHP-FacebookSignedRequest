@@ -18,40 +18,40 @@
         /**
          * _appSecret
          * 
-         * @var     string
          * @access  protected
+         * @var     string
          */
         protected $_appSecret;
 
         /**
          * _encodedSignature
          * 
-         * @var     string
          * @access  protected
+         * @var     string
          */
         protected $_encodedSignature;
 
         /**
          * _parsed
          * 
-         * @var     bool (default: false)
          * @access  protected
+         * @var     bool (default: false)
          */
         protected $_parsed = false;
 
         /**
          * _payload
          * 
-         * @var     array (default: array())
          * @access  protected
+         * @var     array (default: array())
          */
         protected $_payload = array();
 
         /**
          * _signedRequest
          * 
-         * @var     string
          * @access  protected
+         * @var     string
          */
         protected $_signedRequest;
 
